@@ -1,6 +1,6 @@
 # biocborn
 
-Add a short description here!
+BiocPy objects + seaborn = match made on GitHub!!
 
 
 ## Description
