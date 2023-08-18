@@ -41,6 +41,7 @@ def _extract_variable_from_sce(
         A list containing the values and where it was found (annotation or gene).
     """
     _variable = None
+    # first check if the variable we are looking for in coldata
     if x.colData is not None:
         _cdata = x.colData
         if isinstance(_cdata, BiocFrame) and _cdata.hasColumn(var_value):
@@ -49,6 +50,7 @@ def _extract_variable_from_sce(
             _variable = _cdata[var_value]
         _where = "annotation"
 
+    # if it isn't, then it might be a feature (rowdata)
     if _variable is None and x.rowData is not None:
         _rdata = x.rowData
         _var_idx = None
@@ -61,6 +63,7 @@ def _extract_variable_from_sce(
             _variable = _to_list(x.assay(assay)[_var_idx, :])
         _where = "gene"
 
+    # if we can't find it, throw an error
     if _variable is None:
         raise ValueError(
             f"`{var_key}` is neither a cell annotation column nor a gene symbol."
@@ -90,8 +93,7 @@ def plot_reduced_dim(
 ) -> FacetGrid:
     """Plot cell-level reduced dimensions.
 
-    In either case, ****. The first
-    two components are used to plot along the `x` and `y` axis respectively.
+    The first two components are used to plot along the `x` and `y` axis respectively.
 
     Args:
         x : Object containing the embeddings to plot.
