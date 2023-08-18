@@ -27,7 +27,7 @@ def _to_list(x):
 def _extract_variable_from_sce(
     x: SingleCellExperiment, var_key: str, var_value: str, assay: str
 ) -> Tuple[Sequence, Literal["annotation", "gene"]]:
-    """Extract a variable from :py:class:`singlecellexperiment.SingleCellExperiment`.
+    """Extract a variable from :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
 
     Variable ``var_value`` can either be a column in the
     :py:meth:`singlecellexperiment.SingleCellExperiment.colData`
@@ -85,7 +85,7 @@ def _dim_plot(x: ArrayLike, y: ArrayLike, **kwargs) -> FacetGrid:
 @singledispatch
 def plot_reduced_dim(
     x,
-    dimred: str,
+    dimred: Optional[str] = None,
     color_by: Optional[Union[str, Sequence]] = None,
     size_by: Optional[Union[str, Sequence]] = None,
     shape_by: Optional[Union[str, Sequence]] = None,
@@ -101,21 +101,22 @@ def plot_reduced_dim(
             This may be a 2-dimensional :py:class:`numpy.ndarray` containing the
             per-cell coordinates, where rows are cells and columns are components.
 
-            Alternatively ``x`` may be a
-            :py:class:`singlecellexperiment.SingleCellExperiment`, in which case
+            Alternatively, ``x`` may be a
+            :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`,
+            in which case
             a ``dimred`` name must be provided to extract the embeddings using
-            :py:class:`singlecellexperiment.SingleCellExperiment.reducedDim`.
+            :py:meth:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment.reducedDim`.
 
         dimred (str): Reduced dimension to plot, only used if ``x`` is
-            a :py:class:`singlecellexperiment.SingleCellExperiment`.
+            a :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
 
         color_by (Union[str, Sequence], optional): Variable that specifies `colors` per-cell.
 
             This maps to the ``hue`` parameter of
-            :py:class:`seaborn.relplot`. This may be a categorical or numerical.
+            :py:func:`~seaborn.relplot`. This may be a categorical or numerical.
 
             Alternatively, if ``x`` is a
-            :py:class:`singlecellexperiment.SingleCellExperiment`, you can specify
+            :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`, you can specify
             the column annotation field or feature to color by.
 
             Defaults to None, all cells have the same color.
@@ -123,10 +124,10 @@ def plot_reduced_dim(
         size_by (Union[str, Sequence], optional): Variable to specify the `size` of the dots per-cell.
 
             This maps to the ``size`` parameter of
-            :py:class:`seaborn.relplot`. This may be a categorical or numerical.
+            :py:func:`~seaborn.relplot`. This may be a categorical or numerical.
 
             Alternatively, if ``x`` is a
-            :py:class:`singlecellexperiment.SingleCellExperiment`, you may specify
+            :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`, you may specify
             the column annotation field or feature to render the size of the dots.
 
             Defaults to None, all cells have the same size.
@@ -134,25 +135,24 @@ def plot_reduced_dim(
         shape_by (Union[str, Sequence], optional): Variable that specifies `shape` of the dots per-cell.
 
             This maps to the ``markers`` parameter of
-            :py:class:`seaborn.relplot`. This must be a categorical variable.
+            :py:func:`~seaborn.relplot`. This must be a categorical variable.
 
             Alternatively, if ``x`` is a
-            :py:class:`singlecellexperiment.SingleCellExperiment`, you may specify
+            :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`, you may specify
             the column annotation field to specify markers.
 
             Defaults to None, all cells have the same marker.
 
         assay_name (str, optional): Assay to extract feature information from,
-            only used if ``x`` is a :py:class:`singlecellexperiment.SingleCellExperiment`.
+            only used if ``x`` is a :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
 
             This is used when the parameters, ``color_by``, ``size_by`` or ``shape_by`` map
-            to a feature in the :py:class:`singlecellexperiment.SingleCellExperiment`.
+            to a feature in the :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
 
             Defaults to None, all cells have the same default color.. Defaults to None.
 
     Raises:
-        NotImplementedError: When ``x`` is neither a
-        :py:class:`singlecellexperiment.SingleCellExperiment`.
+        NotImplementedError: When ``x`` is not an expected type.
 
     Returns:
         FacetGrid: A seaborn plot object.
@@ -165,7 +165,7 @@ def plot_reduced_dim(
 @plot_reduced_dim.register
 def _plot_reduced_dim_numpy(
     x: ndarray,
-    dimred: str,
+    dimred: Optional[str] = None,
     color_by: Optional[Sequence] = None,
     size_by: Optional[Sequence] = None,
     shape_by: Optional[Sequence] = None,
@@ -215,7 +215,7 @@ def _plot_reduced_dim_numpy(
 @plot_reduced_dim.register
 def _plot_reduced_dim_sce(
     x: SingleCellExperiment,
-    dimred: str,
+    dimred: Optional[str] = None,
     color_by: Optional[Union[str, Sequence]] = None,
     size_by: Optional[Union[str, Sequence]] = None,
     shape_by: Optional[Union[str, Sequence]] = None,

@@ -3,7 +3,5 @@
 # under `install_requires` in `setup.cfg` is also listed here!
 # sphinx_rtd_theme
 myst-parser[linkify]
-sphinx==7.1.2
+sphinx>=3.1.2
 furo
-seaborn
-singlecellexperiment

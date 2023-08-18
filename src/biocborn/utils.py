@@ -10,8 +10,9 @@ __license__ = "MIT"
 FactorizedArray = namedtuple("FactorizedArray", ["levels", "indices"])
 FactorizedArray.__doc__ = """Named tuple of a Factorized Array.
 
-levels (numpy.ndarray): Levels in the array.
-indices (numpy.ndarray): Indices.
+levels (:py:class:`numpy.ndarray`): Levels in the array.
+
+indices (:py:class:`numpy.ndarray`): Indices.
 """
 
 
