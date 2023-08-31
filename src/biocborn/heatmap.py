@@ -1,16 +1,12 @@
 from functools import singledispatch
-from typing import Literal, Optional, Sequence, Tuple, Union
-from warnings import warn
+from typing import Optional, Sequence, Union
 
 from biocframe import BiocFrame
 from pandas import DataFrame
-from scipy import sparse
-from seaborn import FacetGrid, heatmap
+from seaborn import heatmap
 from matplotlib.axes import Axes
 from singlecellexperiment import SingleCellExperiment
 
-from ._checks import is_list_of_type
-from .types import ArrayLike
 
 __author__ = "jkanche"
 __copyright__ = "jkanche"
