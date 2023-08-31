@@ -1,5 +1,5 @@
 from functools import singledispatch
-from typing import Literal, Optional, Sequence, Union
+from typing import Optional, Sequence, Union
 from warnings import warn
 
 from numpy import ndarray
