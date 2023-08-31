@@ -30,33 +30,33 @@ def _extract_variable_from_sce(
     """Extract a variable from :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
 
     Variable ``var_value`` can either be a column in the
-    :py:meth:`singlecellexperiment.SingleCellExperiment.colData`
-    or a row in the :py:meth:`singlecellexperiment.SingleCellExperiment.rowData`.
+    :py:meth:`singlecellexperiment.SingleCellExperiment.col_data`
+    or a row in the :py:meth:`singlecellexperiment.SingleCellExperiment.row_data`.
 
     Raises:
-        ValueError: If ``var_value`` is not found in colData or rowData of the SCE.
+        ValueError: If ``var_value`` is not found in col_data or row_data of the SCE.
 
     Returns:
         Tuple[Sequence, Literal["annotation", "gene"]]:
         A list containing the values and where it was found (annotation or gene).
     """
     _variable = None
-    # first check if the variable we are looking for in coldata
-    if x.colData is not None:
-        _cdata = x.colData
-        if isinstance(_cdata, BiocFrame) and _cdata.hasColumn(var_value):
-            _variable = x.colData.column(var_value)
+    # first check if the variable we are looking for in col_data
+    if x.col_data is not None:
+        _cdata = x.col_data
+        if isinstance(_cdata, BiocFrame) and _cdata.has_column(var_value):
+            _variable = x.col_data.column(var_value)
         elif isinstance(_cdata, DataFrame) and var_value in _cdata.columns:
             _variable = _cdata[var_value]
         _where = "annotation"
 
-    # if it isn't, then it might be a feature (rowdata)
-    if _variable is None and x.rowData is not None:
-        _rdata = x.rowData
+    # if it isn't, then it might be a feature (row_data)
+    if _variable is None and x.row_data is not None:
+        _rdata = x.row_data
         _var_idx = None
-        if isinstance(_rdata, BiocFrame) and _rdata.rowNames is not None:
-            if _rdata.rowNames is not None and var_value in _rdata.rowNames:
-                _var_idx = x.rowData.rowNames.index(var_value)
+        if isinstance(_rdata, BiocFrame) and _rdata.row_names is not None:
+            if _rdata.row_names is not None and var_value in _rdata.row_names:
+                _var_idx = x.row_data.row_names.index(var_value)
                 _variable = _to_list(x.assay(assay)[_var_idx, :])
         elif isinstance(_rdata, DataFrame) and var_value in _rdata.index:
             _var_idx = _rdata.index.get_loc(var_value)
@@ -221,7 +221,7 @@ def _plot_reduced_dim_sce(
     shape_by: Optional[Union[str, Sequence]] = None,
     assay_name: Optional[Union[str, Sequence]] = None,
 ) -> FacetGrid:
-    _rdims = x.reducedDim(dimred)
+    _rdims = x.reduced_dim(dimred)
     NCELLS = _rdims.shape[0]
 
     params = {}
@@ -246,7 +246,7 @@ def _plot_reduced_dim_sce(
             params["hue"] = color_by
         else:
             raise TypeError(
-                f"`color_by` must be a list or a column in coldata. provided {type(color_by)}"
+                f"`color_by` must be a list or a column in col_data. provided {type(color_by)}"
             )
 
     if size_by is not None:
@@ -269,7 +269,7 @@ def _plot_reduced_dim_sce(
             params["size"] = size_by
         else:
             raise TypeError(
-                f"`size_by` must be a list or a column in coldata. provided {type(size_by)}"
+                f"`size_by` must be a list or a column in col_data. provided {type(size_by)}"
             )
         # params["sizes"] = (min(params["size"]), max(params["size"]))
 
@@ -293,7 +293,7 @@ def _plot_reduced_dim_sce(
             params["markers"] = shape_by
         else:
             raise TypeError(
-                f"`shape_by` must be a list or a column in coldata. provided {type(shape_by)}"
+                f"`shape_by` must be a list or a column in col_data. provided {type(shape_by)}"
             )
 
     return _dim_plot(x=_rdims[:, 0].tolist(), y=_rdims[:, 1].tolist(), **params)
