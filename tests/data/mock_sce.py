@@ -37,7 +37,7 @@ df_gr = pd.DataFrame(
     index=[f"gene_{i}" for i in range(200)],
 )
 
-gr = genomicranges.fromPandas(df_gr)
+# gr = genomicranges.fromPandas(df_gr)
 
 colData = pd.DataFrame(
     {
@@ -45,5 +45,5 @@ colData = pd.DataFrame(
     }
 )
 
-sce = SingleCellExperiment(assays={"counts": counts}, rowData=df_gr, colData=colData)
-sce.reducedDims = {"tsne": np.random.rand(ncols, 4)}
+sce = SingleCellExperiment(assays={"counts": counts}, row_data=df_gr, col_data=colData)
+sce.reduced_dims = {"tsne": np.random.rand(ncols, 4)}
