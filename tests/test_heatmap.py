@@ -8,6 +8,6 @@ __license__ = "MIT"
 
 def test_plot_heatmap(mock_data):
     sce = mock_data.sce
-    g = plot_heatmap(sce, annotations="treatment")
+    g = plot_heatmap(sce)
 
     assert isinstance(g, Axes)

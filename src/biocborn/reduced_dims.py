@@ -15,7 +15,7 @@ __copyright__ = "jkanche"
 __license__ = "MIT"
 
 
-def _dim_plot(x: ArrayLike, y: ArrayLike, **kwargs) -> FacetGrid:
+def _dim_plot(x: ArrayLike, y: ArrayLike, kwargs) -> FacetGrid:
     """Function to create the seaborn plot from the parameters."""
     g = relplot(x=x, y=y, **kwargs)
     g.ax.xaxis.grid(True, "minor", linewidth=0.25)
@@ -33,10 +33,11 @@ def plot_reduced_dim(
     size_by: Optional[Union[str, Sequence]] = None,
     shape_by: Optional[Union[str, Sequence]] = None,
     assay_name: Optional[Union[str, Sequence]] = None,
+    **kwargs,
 ) -> FacetGrid:
     """Plot cell-level reduced dimensions.
 
-    The first two components are used to plot along the `x` and `y` axis respectively.
+    The first two components are visualized along the `x` and `y` axis respectively.
 
     Args:
         x : Object containing the embeddings to plot.
@@ -92,7 +93,9 @@ def plot_reduced_dim(
             This is used when the parameters, ``color_by``, ``size_by`` or ``shape_by`` map
             to a feature in the :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
 
-            Defaults to None, all cells have the same default color.. Defaults to None.
+            Defaults to None, in that case the first assay is used.
+
+        **kwargs: Additional keyword arguments to forward to :py:func:`~seaborn.relplot`.
 
     Raises:
         NotImplementedError: When ``x`` is not an expected type.
@@ -108,11 +111,10 @@ def plot_reduced_dim(
 @plot_reduced_dim.register
 def _plot_reduced_dim_numpy(
     x: ndarray,
-    dimred: Optional[str] = None,
     color_by: Optional[Sequence] = None,
     size_by: Optional[Sequence] = None,
     shape_by: Optional[Sequence] = None,
-    assay_name: Literal[None] = None,
+    **kwargs,
 ) -> FacetGrid:
     NCELLS = x.shape[0]
     params = {}
@@ -152,7 +154,7 @@ def _plot_reduced_dim_numpy(
         else:
             raise TypeError(f"`shape_by` must be a list. provided {type(shape_by)}")
 
-    return _dim_plot(x=x[:, 0].tolist(), y=x[:, 1].tolist(), **params)
+    return _dim_plot(x=x[:, 0].tolist(), y=x[:, 1].tolist(), **params, kwargs=kwargs)
 
 
 @plot_reduced_dim.register
@@ -163,6 +165,7 @@ def _plot_reduced_dim_sce(
     size_by: Optional[Union[str, Sequence]] = None,
     shape_by: Optional[Union[str, Sequence]] = None,
     assay_name: Optional[Union[str, Sequence]] = None,
+    **kwargs,
 ) -> FacetGrid:
     if assay_name is None:
         assay_name = x.assay_names[0]
@@ -247,4 +250,6 @@ def _plot_reduced_dim_sce(
                 f"`shape_by` must be a list or a column in col_data. provided {type(shape_by)}"
             )
 
-    return _dim_plot(x=_rdims[:, 0].tolist(), y=_rdims[:, 1].tolist(), **params)
+    return _dim_plot(
+        x=_rdims[:, 0].tolist(), y=_rdims[:, 1].tolist(), **params, kwargs=kwargs
+    )

@@ -49,6 +49,11 @@ def factorize(x: Sequence) -> FactorizedArray:
     return FactorizedArray(levels=levels, indices=output)
 
 
+def _is_unique(x: Sequence):
+    """Check if ``x`` contains a unique list of elements."""
+    return len(set(x)) == len(x)
+
+
 def _to_list(x):
     if sparse.issparse(x):
         return x.toarray()[0].tolist()
@@ -110,10 +115,20 @@ def _extract_variable_from_sce(
 
 
 def _extract_variable_from_frame(frame, var_key):
-    _features_vec = None
+    _vec = None
     if isinstance(frame, BiocFrame) and frame.has_column(var_key):
-        _features_vec = frame.column(var_key)
+        _vec = frame.column(var_key)
     elif isinstance(frame, DataFrame) and var_key in frame.columns:
-        _features_vec = _to_list(frame[var_key])
+        _vec = _to_list(frame[var_key])
 
-    return _features_vec
+    return _vec
+
+
+def _extract_index_from_frame(frame, var_key):
+    _index = None
+    if isinstance(frame, BiocFrame):
+        _index = frame.row_names
+    elif isinstance(frame, DataFrame) and var_key in frame.columns:
+        _index = _to_list(frame.index)
+
+    return _index
