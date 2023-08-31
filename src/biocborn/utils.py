@@ -124,11 +124,11 @@ def _extract_variable_from_frame(frame, var_key):
     return _vec
 
 
-def _extract_index_from_frame(frame, var_key):
+def _extract_index_from_frame(frame):
     _index = None
     if isinstance(frame, BiocFrame):
         _index = frame.row_names
-    elif isinstance(frame, DataFrame) and var_key in frame.columns:
+    elif isinstance(frame, DataFrame):
         _index = _to_list(frame.index)
 
     return _index
