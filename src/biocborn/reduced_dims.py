@@ -164,12 +164,13 @@ def _plot_reduced_dim_sce(
     shape_by: Optional[Union[str, Sequence]] = None,
     assay_name: Optional[Union[str, Sequence]] = None,
 ) -> FacetGrid:
-    
     if assay_name is None:
         assay_name = x.assay_names[0]
-        
+
     if assay_name not in x.assay_names:
-        raise ValueError(f"SingleCellExperment does not contain {assay_name} in assays.")
+        raise ValueError(
+            f"SingleCellExperment does not contain {assay_name} in assays."
+        )
 
     _rdims = x.reduced_dim(dimred)
     NCELLS = _rdims.shape[0]
