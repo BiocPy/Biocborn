@@ -1,78 +1,21 @@
 from functools import singledispatch
-from typing import Literal, Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Union
 from warnings import warn
 
-from biocframe import BiocFrame
 from numpy import ndarray
-from pandas import DataFrame
-from scipy import sparse
 from seaborn import FacetGrid, cubehelix_palette, relplot
 from singlecellexperiment import SingleCellExperiment
 
 from ._checks import is_list_of_type
 from .types import ArrayLike
+from .utils import _extract_variable_from_sce
 
 __author__ = "jkanche"
 __copyright__ = "jkanche"
 __license__ = "MIT"
 
 
-def _to_list(x):
-    if sparse.issparse(x):
-        return x.toarray()[0].tolist()
-
-    return x.tolist()
-
-
-def _extract_variable_from_sce(
-    x: SingleCellExperiment, var_key: str, var_value: str, assay: str
-) -> Tuple[Sequence, Literal["annotation", "gene"]]:
-    """Extract a variable from :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
-
-    Variable ``var_value`` can either be a column in the
-    :py:meth:`singlecellexperiment.SingleCellExperiment.col_data`
-    or a row in the :py:meth:`singlecellexperiment.SingleCellExperiment.row_data`.
-
-    Raises:
-        ValueError: If ``var_value`` is not found in col_data or row_data of the SCE.
-
-    Returns:
-        Tuple[Sequence, Literal["annotation", "gene"]]:
-        A list containing the values and where it was found (annotation or gene).
-    """
-    _variable = None
-    # first check if the variable we are looking for in col_data
-    if x.col_data is not None:
-        _cdata = x.col_data
-        if isinstance(_cdata, BiocFrame) and _cdata.has_column(var_value):
-            _variable = x.col_data.column(var_value)
-        elif isinstance(_cdata, DataFrame) and var_value in _cdata.columns:
-            _variable = _cdata[var_value]
-        _where = "annotation"
-
-    # if it isn't, then it might be a feature (row_data)
-    if _variable is None and x.row_data is not None:
-        _rdata = x.row_data
-        _var_idx = None
-        if isinstance(_rdata, BiocFrame) and _rdata.row_names is not None:
-            if _rdata.row_names is not None and var_value in _rdata.row_names:
-                _var_idx = x.row_data.row_names.index(var_value)
-                _variable = _to_list(x.assay(assay)[_var_idx, :])
-        elif isinstance(_rdata, DataFrame) and var_value in _rdata.index:
-            _var_idx = _rdata.index.get_loc(var_value)
-            _variable = _to_list(x.assay(assay)[_var_idx, :])
-        _where = "gene"
-
-    # if we can't find it, throw an error
-    if _variable is None:
-        raise ValueError(
-            f"`{var_key}` is neither a cell annotation column nor a gene symbol."
-        )
-
-    return (list(_variable), _where)
-
-
-def _dim_plot(x: ArrayLike, y: ArrayLike, **kwargs) -> FacetGrid:
+def _dim_plot(x: ArrayLike, y: ArrayLike, kwargs) -> FacetGrid:
     """Function to create the seaborn plot from the parameters."""
     g = relplot(x=x, y=y, **kwargs)
     g.ax.xaxis.grid(True, "minor", linewidth=0.25)
@@ -90,10 +33,11 @@ def plot_reduced_dim(
     size_by: Optional[Union[str, Sequence]] = None,
     shape_by: Optional[Union[str, Sequence]] = None,
     assay_name: Optional[Union[str, Sequence]] = None,
+    **kwargs,
 ) -> FacetGrid:
     """Plot cell-level reduced dimensions.
 
-    The first two components are used to plot along the `x` and `y` axis respectively.
+    The first two components are visualized along the `x` and `y` axis respectively.
 
     Args:
         x : Object containing the embeddings to plot.
@@ -149,7 +93,9 @@ def plot_reduced_dim(
             This is used when the parameters, ``color_by``, ``size_by`` or ``shape_by`` map
             to a feature in the :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
 
-            Defaults to None, all cells have the same default color.. Defaults to None.
+            Defaults to None, in that case the first assay is used.
+
+        **kwargs: Additional keyword arguments to forward to :py:func:`~seaborn.relplot`.
 
     Raises:
         NotImplementedError: When ``x`` is not an expected type.
@@ -165,11 +111,10 @@ def plot_reduced_dim(
 @plot_reduced_dim.register
 def _plot_reduced_dim_numpy(
     x: ndarray,
-    dimred: Optional[str] = None,
     color_by: Optional[Sequence] = None,
     size_by: Optional[Sequence] = None,
     shape_by: Optional[Sequence] = None,
-    assay_name: Literal[None] = None,
+    **kwargs,
 ) -> FacetGrid:
     NCELLS = x.shape[0]
     params = {}
@@ -209,7 +154,7 @@ def _plot_reduced_dim_numpy(
         else:
             raise TypeError(f"`shape_by` must be a list. provided {type(shape_by)}")
 
-    return _dim_plot(x=x[:, 0].tolist(), y=x[:, 1].tolist(), **params)
+    return _dim_plot(x=x[:, 0].tolist(), y=x[:, 1].tolist(), **params, kwargs=kwargs)
 
 
 @plot_reduced_dim.register
@@ -220,7 +165,16 @@ def _plot_reduced_dim_sce(
     size_by: Optional[Union[str, Sequence]] = None,
     shape_by: Optional[Union[str, Sequence]] = None,
     assay_name: Optional[Union[str, Sequence]] = None,
+    **kwargs,
 ) -> FacetGrid:
+    if assay_name is None:
+        assay_name = x.assay_names[0]
+
+    if assay_name not in x.assay_names:
+        raise ValueError(
+            f"SingleCellExperment does not contain {assay_name} in assays."
+        )
+
     _rdims = x.reduced_dim(dimred)
     NCELLS = _rdims.shape[0]
 
@@ -296,4 +250,6 @@ def _plot_reduced_dim_sce(
                 f"`shape_by` must be a list or a column in col_data. provided {type(shape_by)}"
             )
 
-    return _dim_plot(x=_rdims[:, 0].tolist(), y=_rdims[:, 1].tolist(), **params)
+    return _dim_plot(
+        x=_rdims[:, 0].tolist(), y=_rdims[:, 1].tolist(), **params, kwargs=kwargs
+    )
