@@ -14,3 +14,6 @@ except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"
 finally:
     del version, PackageNotFoundError
+
+from .reduced_dims import plot_reduced_dim
+from .heatmap import plot_heatmap

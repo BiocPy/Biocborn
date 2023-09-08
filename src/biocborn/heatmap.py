@@ -16,7 +16,7 @@ __copyright__ = "jkanche"
 __license__ = "MIT"
 
 
-def _heatmap_plot(x, kwargs) -> Axes:
+def _heatmap_plot(x, **kwargs) -> Axes:
     """Function to create the seaborn heatmap plot from the parameters."""
     g = heatmap(x, **kwargs)
 

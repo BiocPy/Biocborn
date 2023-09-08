@@ -154,7 +154,9 @@ def _plot_reduced_dim_numpy(
         else:
             raise TypeError(f"`shape_by` must be a list. provided {type(shape_by)}")
 
-    return _dim_plot(x=x[:, 0].tolist(), y=x[:, 1].tolist(), **params, kwargs=kwargs)
+    all_kwargs = {**kwargs, **params}
+
+    return _dim_plot(x=x[:, 0].tolist(), y=x[:, 1].tolist(), kwargs=all_kwargs)
 
 
 @plot_reduced_dim.register
@@ -250,6 +252,8 @@ def _plot_reduced_dim_sce(
                 f"`shape_by` must be a list or a column in col_data. provided {type(shape_by)}"
             )
 
+    all_kwargs = {**kwargs, **params}
+
     return _dim_plot(
-        x=_rdims[:, 0].tolist(), y=_rdims[:, 1].tolist(), **params, kwargs=kwargs
+        x=_rdims[:, 0].tolist(), y=_rdims[:, 1].tolist(), kwargs=all_kwargs
     )
