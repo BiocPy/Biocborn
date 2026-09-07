@@ -1,5 +1,5 @@
+from collections.abc import Sequence
 from functools import singledispatch
-from typing import Optional, Sequence, Union
 from warnings import warn
 
 from numpy import ndarray
@@ -28,11 +28,11 @@ def _dim_plot(x: ArrayLike, y: ArrayLike, kwargs) -> FacetGrid:
 @singledispatch
 def plot_reduced_dim(
     x,
-    dimred: Optional[str] = None,
-    color_by: Optional[Union[str, Sequence]] = None,
-    size_by: Optional[Union[str, Sequence]] = None,
-    shape_by: Optional[Union[str, Sequence]] = None,
-    assay_name: Optional[Union[str, Sequence]] = None,
+    dimred: str | None = None,
+    color_by: str | Sequence | None = None,
+    size_by: str | Sequence | None = None,
+    shape_by: str | Sequence | None = None,
+    assay_name: str | Sequence | None = None,
     **kwargs,
 ) -> FacetGrid:
     """Plot cell-level reduced dimensions.
@@ -111,9 +111,9 @@ def plot_reduced_dim(
 @plot_reduced_dim.register
 def _plot_reduced_dim_numpy(
     x: ndarray,
-    color_by: Optional[Sequence] = None,
-    size_by: Optional[Sequence] = None,
-    shape_by: Optional[Sequence] = None,
+    color_by: Sequence | None = None,
+    size_by: Sequence | None = None,
+    shape_by: Sequence | None = None,
     **kwargs,
 ) -> FacetGrid:
     NCELLS = x.shape[0]
@@ -160,11 +160,11 @@ def _plot_reduced_dim_numpy(
 @plot_reduced_dim.register
 def _plot_reduced_dim_sce(
     x: SingleCellExperiment,
-    dimred: Optional[str] = None,
-    color_by: Optional[Union[str, Sequence]] = None,
-    size_by: Optional[Union[str, Sequence]] = None,
-    shape_by: Optional[Union[str, Sequence]] = None,
-    assay_name: Optional[Union[str, Sequence]] = None,
+    dimred: str | None = None,
+    color_by: str | Sequence | None = None,
+    size_by: str | Sequence | None = None,
+    shape_by: str | Sequence | None = None,
+    assay_name: str | Sequence | None = None,
     **kwargs,
 ) -> FacetGrid:
     if assay_name is None:
