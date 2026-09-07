@@ -1,5 +1,6 @@
 from collections import namedtuple
-from typing import Literal, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Literal
 
 from biocframe import BiocFrame
 from numpy import int32, zeros
@@ -29,7 +30,6 @@ def factorize(x: Sequence) -> FactorizedArray:
     Returns:
         FactorizedArray: A factorized tuple.
     """
-
     if not isinstance(x, list):
         raise TypeError("x is not a list")
 
@@ -68,7 +68,7 @@ def _extract_variable_from_sce(
     assay: str,
     check_col_data: bool = True,
     check_row_data: bool = True,
-) -> Tuple[Sequence, Literal["annotation", "gene"]]:
+) -> tuple[Sequence, Literal["annotation", "gene"]]:
     """Extract a variable from :py:class:`~singlecellexperiment.SingleCellExperiment.SingleCellExperiment`.
 
     Variable ``var_value`` can either be a column in the

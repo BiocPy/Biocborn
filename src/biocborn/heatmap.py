@@ -1,5 +1,5 @@
+from collections.abc import Sequence
 from functools import singledispatch
-from typing import Optional, Sequence, Union
 
 from biocframe import BiocFrame
 from matplotlib.axes import Axes
@@ -26,9 +26,9 @@ def _heatmap_plot(x, kwargs) -> Axes:
 @singledispatch
 def plot_heatmap(
     x,
-    features: Optional[Union[str, Sequence]] = None,
-    annotations: Optional[Union[str, Sequence]] = None,
-    assay_name: Optional[str] = None,
+    features: str | Sequence | None = None,
+    annotations: str | Sequence | None = None,
+    assay_name: str | None = None,
     **kwargs,
 ):
     """Plot a heatmap. A wrapper around seaborn's
@@ -96,9 +96,9 @@ def _plot_heatmap_df(x: DataFrame, **kwargs):
 @plot_heatmap.register
 def _plot_heatmap_sce(
     x: SingleCellExperiment,
-    features: Optional[Union[str, Sequence]] = None,
-    annotations: Optional[Union[str, Sequence]] = None,
-    assay_name: Optional[str] = None,
+    features: str | Sequence | None = None,
+    annotations: str | Sequence | None = None,
+    assay_name: str | None = None,
     **kwargs,
 ):
     if assay_name is None:
